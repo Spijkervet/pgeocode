@@ -16,7 +16,7 @@ STORAGE_DIR = os.environ.get(
     "PGEOCODE_DATA_DIR", os.path.join(os.path.expanduser("~"), "pgeocode_data")
 )
 
-DOWNLOAD_URL = "https://download.geonames.org/export/zip/{country}.zip"
+DOWNLOAD_URL = "https://download.geonames.org/export/zip/{country}.csv.zip"
 
 DATA_FIELDS = [
     "country_code",
@@ -34,89 +34,7 @@ DATA_FIELDS = [
 ]
 
 COUNTRIES_VALID = [
-    "AD",
-    "AR",
-    "AS",
-    "AT",
-    "AU",
-    "AX",
-    "BD",
-    "BE",
-    "BG",
-    "BM",
-    "BR",
-    "BY",
-    "CA",
-    "CH",
-    "CO",
-    "CR",
-    "CZ",
-    "DE",
-    "DK",
-    "DO",
-    "DZ",
-    "ES",
-    "FI",
-    "FO",
-    "FR",
-    "GB",
-    "GF",
-    "GG",
-    "GL",
-    "GP",
-    "GT",
-    "GU",
-    "HR",
-    "HU",
-    "IE",
-    "IM",
-    "IN",
-    "IS",
-    "IT",
-    "JE",
-    "JP",
-    "LI",
-    "LK",
-    "LT",
-    "LU",
-    "LV",
-    "MC",
-    "MD",
-    "MH",
-    "MK",
-    "MP",
-    "MQ",
-    "MT",
-    "MX",
-    "MY",
-    "NC",
-    "NL",
-    "NO",
-    "NZ",
-    "PH",
-    "PK",
-    "PL",
-    "PM",
-    "PR",
-    "PT",
-    "RE",
-    "RO",
-    "RU",
-    "SE",
-    "SI",
-    "SJ",
-    "SK",
-    "SM",
-    "TH",
-    "TR",
-    "UA",
-    "US",
-    "UY",
-    "VA",
-    "VI",
-    "WF",
-    "YT",
-    "ZA",
+    "NL_full",
 ]
 
 
@@ -142,7 +60,6 @@ class Nominatim:
 
     def __init__(self, country="fr", unique=True):
 
-        country = country.upper()
         if country not in COUNTRIES_VALID:
             raise ValueError(
                 (
@@ -169,15 +86,14 @@ class Nominatim:
     def _get_data(country):
         """Load the data from disk; otherwise download and save it"""
         from zipfile import ZipFile
-
-        data_path = os.path.join(STORAGE_DIR, country.upper() + ".txt")
+        data_path = os.path.join(STORAGE_DIR, country + ".txt")
         if os.path.exists(data_path):
             data = pd.read_csv(data_path, dtype={"postal_code": str})
         else:
             url = DOWNLOAD_URL.format(country=country)
             reader, headers = _get_url(url)
             with ZipFile(reader) as fh_zip:
-                with fh_zip.open(country.upper() + ".txt") as fh:
+                with fh_zip.open(country + ".txt") as fh:
                     data = pd.read_csv(
                         fh,
                         sep="\t",
